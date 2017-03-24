@@ -1,0 +1,32 @@
+{
+  "name": "lsolesen/shoporama-php-sdk",
+    "type": "library",
+    "description": "PHP-SDK to communicate with ShopOramas REST interface (http://www.shoporama.dk)",
+    "homepage": "http://github.com/lsolesen/shoporama-php-sdk",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Lars Olesen",
+            "email": "lars@intraface.dk"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Shoporama\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+          "Shoporama\\Tests\\": "tests"
+        }
+    },
+    "require": {
+        "php": ">=5.3.2",
+        "lib/curl": "*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "4.8.*",
+        "squizlabs/php_codesniffer": "2.6.*",
+        "satooshi/php-coveralls": "1.0.*"
+    }
+}
