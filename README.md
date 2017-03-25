@@ -5,13 +5,13 @@ PHP SDK for [Shoporama API](https://shoporama.dk/api) only from [Shoporama](http
 
 ## Getting started
 
-Before doing anything you should register yourself with Billy and get access credentials.
+Before doing anything you should register yourself with Shoporama and get access credentials.
 
 ## Installation
 
 ### Composer
 
-Simply add a dependency on lsolesen/billy-php-sdk to your project's `composer.json` file if you use Composer to manage the dependencies of your project. Here is a minimal example of a composer.json file that just defines a dependency on Billy PHP SDK 2.1:
+Simply add a dependency on lsolesen/shoporama-php-sdk to your project's `composer.json` file if you use Composer to manage the dependencies of your project. Here is a minimal example of a composer.json file that just defines a dependency on Shoporama PHP SDK 0.1.*:
 
 ```
 {
