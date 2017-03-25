@@ -1,5 +1,5 @@
 # Shoporama PHP SDK
-[![Build Status](https://travis-ci.org/lsolesen/billy-php-sdk.svg?branch=master)](https://travis-ci.org/lsolesen/billy-php-sdk) [![Code Coverage](https://scrutinizer-ci.com/g/lsolesen/billy-php-sdk/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/lsolesen/billy-php-sdk/?branch=master) [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/lsolesen/billy-php-sdk/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/lsolesen/billy-php-sdk/?branch=master) [![Latest Stable Version](https://poser.pugx.org/lsolesen/billy-php-sdk/v/stable)](https://packagist.org/packages/lsolesen/billy-php-sdk) [![Total Downloads](https://poser.pugx.org/lsolesen/billy-php-sdk/downloads)](https://packagist.org/packages/lsolesen/billy-php-sdk) [![License](https://poser.pugx.org/lsolesen/billy-php-sdk/license)](https://packagist.org/packages/lsolesen/billy-php-sdk)
+[![Build Status](https://travis-ci.org/lsolesen/shoporama-php-sdk.svg?branch=master)](https://travis-ci.org/lsolesen/shoporama-php-sdk) [![Code Coverage](https://scrutinizer-ci.com/g/lsolesen/shoporama-php-sdk/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/lsolesen/shoporama-php-sdk/?branch=master) [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/lsolesen/shoporama-php-sdk/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/lsolesen/shoporama-php-sdk/?branch=master) [![Latest Stable Version](https://poser.pugx.org/lsolesen/shoporama-php-sdk/v/stable)](https://packagist.org/packages/lsolesen/shoporama-php-sdk) [![Total Downloads](https://poser.pugx.org/lsolesen/shoporama-php-sdk/downloads)](https://packagist.org/packages/lsolesen/shoporama-php-sdk) [![License](https://poser.pugx.org/lsolesen/shoporama-php-sdk/license)](https://packagist.org/packages/lsolesen/shoporama-php-sdk)
 
 PHP SDK for [Shoporama API](https://shoporama.dk/api) only from [Shoporama](http://www.shoporama.dk/).
 
@@ -25,122 +25,75 @@ After running `composer install`, you can take advantage of Composer's autoloade
 
 ## Usage
 
-### Create a new client
-
-First you should create a client instance that is authorized with `api_key` or provided by Billy.
+#### Create client
 
 ```php5
 <?php
-use Billy\Client\Client as Billy_Client;
-use Billy\Client\Request as Billy_Request;
-
-try {
-    $request = new Billy_Request($api_key);
-    $client = new Billy_Client($request);
-} catch (Exception $e) {
-    //...
-}
-?>
+$request = new Request($api_key);
+return new Client($request);
 ```
 
-### Create and update contact
+Now the client can be used to call the diffferent endpoint at Shoporama.
 
 ```php5
 <?php
-use Billy\Contacts\ContactRepository;
-
-try {
-    // @todo: This will probably end up becoming an object of its own.
-    $persons = array(
-        array(
-            'name' => $name,
-            'email' => $email,
-        )
-    );
-    $contact = new Contact();
-    $contact
-        ->setName($name)
-        ->set('phone', $phone)
-        ->setCountryID($address['country'])
-        ->set('street', $address['thoroughfare'])
-        ->set('cityText', $address['locality'])
-        ->set('stateText', $address['administrative_area'])
-        ->set('zipcodeText', $address['postal_code'])
-        ->set('contactNo', $profile_id)
-        ->set('contactPersons', $persons);
-
-    $repository = new ContactRepository($request);
-    $created_contact = $repository->create($contact);
-
-    $contact = $repository->getSingle($created_contact->getID());
-    $contact
-        ->setName($new_name);
-    $repository->update($contact);
-} catch (Exception $e) {
-    //...
-}
-?>
+$client->get($ressource_url);
+$client->post($ressource_url, $data);
+$client->put($ressource_url, $data);
+$client->patch($ressource_url, $data);
+$client->delete($ressource_url);
 ```
 
-### Create and update product
+### Examples
+
+#### Create product
 
 ```php5
 <?php
-use Billy\Products\ProductsRepository;
-
-try {
-    $prices = array();
-    $prices[] = array(
-        'currencyId' => 'DKK',
-        'unitPrice' => '20.25',
-    );
-    $product = new Product();
-    $product
-        ->setAccount($billy_state_account_id)
-        ->setProductNo($product_id)
-        ->setSalesTaxRuleset($billy_vat_model_id)
-        ->set('prices', $prices);
-
-    $repository = new ProductRepository($request);
-    $created_product = $repository->create($product);
-
-    $product = $repository->getSingle($created_product->getID());
-    $product
-        ->setName($new_name);
-    $repository->update($product);
-} catch (Exception $e) {
-    //...
-}
-?>
+// POST for creating a product
+$data = array('name' => 'My Shoporama Product');
+$response = $client->post('/product', $data);
+$array = json_decode($response->getBody(), true);
+$product_id = $array['product_id'];
 ```
-### Create an invoice
+
+#### Update entire product ressource
 
 ```php5
 <?php
-use Billy\Invoices\InvoicesRepository;
-
-try {
-    $invoice_line = new InvoiceLine();
-    $invoice_line->setProductID($product->getID())
-        ->setQuantity(4)
-        ->set('priority', $priority)
-        ->setDescription('My description')
-        ->setUnitPrice(20.25);
-
-    $new_invoice = new Billy_Invoice();
-    $new_invoice->setType('invoice')
-        ->setOrderNumber($order_number)
-        ->setContactID($contact->getID())
-        ->setContactMessage($contact_message)
-        ->setEntryDate($entry_date)
-        ->setPaymentTermsDays(8)
-        ->setCurrencyID('DKK')
-        ->set('lines', $invoice_line->toArray(););
-
-    $created_invoice = $repository->create($new_invoice);
-    $billy_invoice_id = $created_invoice->getID();
-} catch (Exception $e) {
-    //...
-}
-?>
+// PUT for updating a Product
+$data['name'] = 'PUT Testproduct';
+$response = $client->put('/product/' . $product_id, $data);
+$array = json_decode($response->getBody(), true);
 ```
+
+#### Update product field
+
+```php5
+<?php
+// Test PATCH for updating af product.
+$patch_data = array('name' => 'PATCH Testproduct');
+$response = $client->put('/product/' . $product_id, $patch_data);
+$array = json_decode($response->getBody(), true);
+```
+
+#### Delete product
+
+```php5
+<?php
+// Testing DELETE - should remove the product
+$response = $client->delete('/product/' . $product_id);
+$this->assertInstanceOf('Shoporama\Response', $response);
+```
+
+#### Get product
+
+```php5
+<?php
+// Testing GET - product should not exist anymore
+$response = $client->get('/product/' . $product_id);
+```
+
+## Contributing
+
+You are more than welcome to contribute using pull requests.
