@@ -12,7 +12,6 @@ use Shoporama\Request;
  */
 class ClientTest extends \PHPUnit_Framework_TestCase
 {
-
     protected $api_key = API_KEY;
 
     public function getClient($key)
@@ -40,24 +39,21 @@ class ClientTest extends \PHPUnit_Framework_TestCase
     /**
      * @group IntegrationTest
      */
-    public function testGet()
+    public function testGetByGettingAProductList()
     {
         $client = $this->getClient($this->api_key);
         $response = $client->get('/product?limit=100');
         $this->assertInstanceOf('Shoporama\Response', $response);
     }
 
-    /**
-     * @group IntegrationTest
-     */
-    public function testCreateProduct()
+    protected function getProductDataArray()
     {
         $data = array(
             "name" => "Testprodukt",
             "is_online" => 1,
             "supplier_id" => 4600,
             "brand_id" => 642,
-            "description" => "",
+            "description" => "Test product",
             "list_description" => "",
             "main_category_id" => "",
             "profile_id" => 12115,
@@ -112,20 +108,76 @@ class ClientTest extends \PHPUnit_Framework_TestCase
             ),
             "images" => array(
                 array(
-                    "data" => base64_encode(file_get_contents(dirname(__FILE__) . "/../scripts/img.png"))
+                    "data" => base64_encode(file_get_contents(dirname(__FILE__) . "/img.png"))
                 )
             ),
         );
+        return $data;
+    }
 
+    /**
+     * @group IntegrationTest
+     */
+    public function testGetPostPutPatchDeleteByManipulatingAProduct()
+    {
+        // Test POST for creating a product
+        $data = $this->getProductDataArray();
         $client = $this->getClient($this->api_key);
         $response = $client->post('/product', $data);
         $this->assertInstanceOf('Shoporama\Response', $response);
-
         $array = json_decode($response->getBody(), true);
 
         $product_id = $array['product_id'];
+        $this->assertTrue($product_id > 0);
 
+        // Test PUT for updating a Product
+        $expected = $data['name'] = 'PUT Testproduct';
+        $response = $client->put('/product/' . $product_id, $data);
+        $this->assertInstanceOf('Shoporama\Response', $response);
+        $array = json_decode($response->getBody(), true);
+        $put_product_id = $array['product_id'];
+
+        $this->assertTrue($product_id === $put_product_id);
+        $response = $client->get('/product/' . $product_id);
+        $array = json_decode($response->getBody(), true);
+        $this->assertEquals($expected, $array['name']);
+        $this->assertEquals($data['description'], $array['description']);
+
+        // Test PUT for updating a Product - overwrites everything when new data
+        $put_data = array('name' => 'PUT new data Testproduct');
+        $expected = $put_data['name'];
+        $response = $client->put('/product/' . $product_id, $put_data);
+        $this->assertInstanceOf('Shoporama\Response', $response);
+        $array = json_decode($response->getBody(), true);
+        $put_product_id = $array['product_id'];
+
+        $this->assertTrue($product_id === $put_product_id);
+        $response = $client->get('/product/' . $product_id);
+        $array = json_decode($response->getBody(), true);
+        $this->assertEquals($expected, $array['name']);
+        //$this->assertNotEquals($data['description'], $array['description']);
+
+        // Test PATCH for updating af product.
+        $patch_data = array('name' => 'PATCH Testproduct');
+        $expected = $patch_data['name'];
+        $response = $client->put('/product/' . $product_id, $patch_data);
+        $this->assertInstanceOf('Shoporama\Response', $response);
+        $array = json_decode($response->getBody(), true);
+        $patch_product_id = $array['product_id'];
+
+        $this->assertTrue($product_id === $patch_product_id);
+        $response = $client->get('/product/' . $product_id);
+        $array = json_decode($response->getBody(), true);
+        $this->assertEquals($expected, $array['name']);
+        $this->assertEquals($data['description'], $array['description']);
+
+        // Testing DELETE - should remove the product
         $response = $client->delete('/product/' . $product_id);
         $this->assertInstanceOf('Shoporama\Response', $response);
+
+        // Testing GET - product should not exist anymore
+        $response = $client->get('/product/' . $product_id);
+        $this->assertInstanceOf('Shoporama\Response', $response);
+        $this->assertEquals('410 Gone', $response->getBody());
     }
 }

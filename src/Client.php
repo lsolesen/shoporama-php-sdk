@@ -55,7 +55,7 @@ class Client
     }
 
     /**
-     * Get method
+     * Post method
      *
      * @param string $url  Url on the REST service
      * @param array  $body Parameters for the request
@@ -70,12 +70,29 @@ class Client
     /**
      * Put method
      *
+     * Overwrites the entire ressource.
+     *
      * @param string $url  Url on the REST service
      * @param array  $body Parameters for the request
      *
      * @return Response
      */
     public function put($url, $body)
+    {
+        return $this->request->call('PUT', $url, $body);
+    }
+
+    /**
+     * Patch method
+     *
+     * Only overwrites the values provided in $body.
+     *
+     * @param string $url  Url on the REST service
+     * @param array  $body Parameters for the request
+     *
+     * @return Response
+     */
+    public function patch($url, $body)
     {
         return $this->request->call('PUT', $url, $body);
     }
