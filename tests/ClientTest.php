@@ -183,7 +183,49 @@ class ClientTest extends \PHPUnit_Framework_TestCase
 
     public function testStock()
     {
-        $data = $this->getProductDataArray();
+        $data = array(
+            "name" => "Testprodukt",
+            "is_online" => 1,
+            "supplier_id" => 4600,
+            "brand_id" => 642,
+            "profile_id" => 12115,
+            "price" => mt_rand(1, 200),
+            "auto_offline" => 0,
+            "rewrite_url" => "stock-" . mt_rand(1, 100),
+            "attributes" => array(
+                // Speed
+                array(
+                    "attribute_id" => 15984,
+                    "value" => 5
+                )
+            ),
+            "stock_settings" => array(
+                // Plastik: 15964
+                // Vægt: 15965
+                // Farve: 15966
+                array(
+                    "attribute_id" => 15964,
+                    "attribute_value_id" => 100588,
+                    "purchase_price" => mt_rand(1, 100),
+                    "sec_own_id" => "STOCK",
+                    "own_id" => "STOCK-1"
+                ),
+                array(
+                    "attribute_id" => 15965,
+                    "attribute_value_id" => 100568,
+                    "purchase_price" => mt_rand(1, 100),
+                    "sec_own_id" => "yy",
+                    "own_id" => "STOCK-2"
+                ),
+                array(
+                    "attribute_id" => 15966,
+                    "attribute_value_id" => 100570,
+                    "purchase_price" => mt_rand(1, 100),
+                    "sec_own_id" => "yy",
+                    "own_id" => "STOCK-3"
+                ),
+            )
+        );
         $client = $this->getClient($this->api_key);
         $response = $client->post('/product', $data);
         $array = json_decode($response->getBody(), true);
@@ -207,6 +249,9 @@ class ClientTest extends \PHPUnit_Framework_TestCase
 
         $response = $client->post('/stock', $data);
         $this->assertInstanceOf('Shoporama\Response', $response);
+        print_r($response->getBody());
+
+        $response = $client->get('/product/' . $product_id);
         print_r($response->getBody());
     }
 }
