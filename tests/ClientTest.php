@@ -88,22 +88,22 @@ class ClientTest extends \PHPUnit_Framework_TestCase
                     "attribute_id" => 15964,
                     "attribute_value_id" => 100588,
                     "purchase_price" => mt_rand(1, 100),
-                    "sec_own_id" => "xx",
-                    "own_id" => "xxx"
+                    "sec_own_id" => "STOCK",
+                    "own_id" => "STOCK-1"
                 ),
                 array(
                     "attribute_id" => 15965,
                     "attribute_value_id" => 100568,
                     "purchase_price" => mt_rand(1, 100),
                     "sec_own_id" => "yy",
-                    "own_id" => "yyy"
+                    "own_id" => "STOCK-2"
                 ),
                 array(
                     "attribute_id" => 15966,
                     "attribute_value_id" => 100570,
                     "purchase_price" => mt_rand(1, 100),
                     "sec_own_id" => "yy",
-                    "own_id" => "yyy"
+                    "own_id" => "STOCK-3"
                 ),
             ),
             "images" => array(
@@ -118,7 +118,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
     /**
      * @group IntegrationTest
      */
-    public function testGetPostPutPatchDeleteByManipulatingAProduct()
+    public function __testGetPostPutPatchDeleteByManipulatingAProduct()
     {
         // Test POST for creating a product
         $data = $this->getProductDataArray();
@@ -179,5 +179,34 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $response = $client->get('/product/' . $product_id);
         $this->assertInstanceOf('Shoporama\Response', $response);
         $this->assertEquals('410 Gone', $response->getBody());
+    }
+
+    public function testStock()
+    {
+        $data = $this->getProductDataArray();
+        $client = $this->getClient($this->api_key);
+        $response = $client->post('/product', $data);
+        $array = json_decode($response->getBody(), true);
+
+        $product_id = $array['product_id'];
+
+        $data = array(
+            array(
+                "SKU" => "STOCK-1",
+                "stock" => 10
+            ),
+            array(
+                "SKU" => "STOCK-2",
+                "stock" => 5
+            ),
+            array(
+                "SKU" => "STOCK-3",
+                "stock" => 5
+            )
+        );
+
+        $response = $client->post('/stock', $data);
+        $this->assertInstanceOf('Shoporama\Response', $response);
+        print_r($response->getBody());
     }
 }
